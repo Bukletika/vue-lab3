@@ -64,7 +64,7 @@ export default {
         };
 
         const response = await fetch(
-          "https://lab3-1df07-default-rtdb.firebaseio.com/tasks.json",
+          `${process.env.VUE_APP_BASE_URL}/tasks.json`,
           {
             method: "POST",
             headers: {

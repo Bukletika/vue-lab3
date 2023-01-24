@@ -11,6 +11,9 @@ export default createStore({
   getters: {
     tasks(state) {
       return state.tasks
+    },
+    activeTasksCount(state) {
+      return state.tasks.filter((task) => task.status == "active").length
     }
   },
   mutations: {

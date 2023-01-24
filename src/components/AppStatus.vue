@@ -6,6 +6,9 @@ import { computed } from "vue";
 export default {
   props: {
     type: String,
+    validator(value) {
+      return['active', 'done', 'progress', 'disabled'].includes(value);
+    }
   },
 
   setup(props) {

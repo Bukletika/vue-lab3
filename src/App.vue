@@ -24,7 +24,7 @@ export default {
     const loadTasks = async function() {
       store.commit('setLoading', true);
 
-      const { data } = await axios.get('https://lab3-1df07-default-rtdb.firebaseio.com/tasks.json');
+      const { data } = await axios.get(`${process.env.VUE_APP_BASE_URL}/tasks.json`);
 
       if (!data) {
         store.commit('setLoading', false);

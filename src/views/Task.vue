@@ -1,16 +1,24 @@
 <template>
-
   <app-loader v-if="loading"></app-loader>
 
   <div class="card" v-else-if="currentTask && !loading">
     <h2>{{ currentTask.title }}</h2>
     <p><strong>Статус</strong>: <AppStatus :type="currentTask.status" /></p>
-    <p><strong>Дэдлайн</strong>: {{ new Date(currentTask.date).toLocaleDateString() }}</p>
+    <p>
+      <strong>Дэдлайн</strong>:
+      {{ new Date(currentTask.date).toLocaleDateString() }}
+    </p>
     <p><strong>Описание</strong>: {{ currentTask.description }}</p>
     <div>
-      <button class="btn" @click="changeStatus(taskId, 'progress')">Взять в работу</button>
-      <button class="btn primary" @click="changeStatus(taskId, 'done')">Завершить</button>
-      <button class="btn danger" @click="changeStatus(taskId, 'disabled')">Отменить</button>
+      <button class="btn" @click="changeStatus(taskId, 'progress')" v-if="currentTask.status != 'progress'">
+        Взять в работу
+      </button>
+      <button class="btn primary" @click="changeStatus(taskId, 'done')" v-if="currentTask.status != 'done'">
+        Завершить
+      </button>
+      <button class="btn danger" @click="changeStatus(taskId, 'disabled')" v-if="currentTask.status != 'disabled'">
+        Отменить
+      </button>
     </div>
   </div>
 
@@ -20,16 +28,15 @@
 </template>
 
 <script>
-import AppStatus from '../components/AppStatus'
+import AppStatus from "../components/AppStatus";
 
 import AppLoader from "../components/AppLoader";
-import axios from 'axios'
+import axios from "axios";
 
-import { useStore } from 'vuex';
+import { useStore } from "vuex";
 
-
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
 
 export default {
   setup() {
@@ -45,33 +52,28 @@ export default {
 
     // функции
     const changeStatus = async function (id, status) {
+      const newTasks = tasks.value.map((task) =>
+        task.id == id ? { ...task, status: status } : task
+      );
 
-        const newTasks = tasks.value.map((task) => (
-          task.id == id ? { ...task, status: status } : task
-        ));
+      await axios.put(`${process.env.VUE_APP_BASE_URL}/tasks/${id}.json`, {
+        status: status,
+        date: currentTask.value.date,
+        description: currentTask.value.description,
+        title: currentTask.value.title,
+      });
 
-        const changeTask = tasks.value.find(item => {
-          return item.id == id
-        })
-
-        await axios.put(`https://lab3-1df07-default-rtdb.firebaseio.com/tasks/${id}.json`, {
-          status: status,
-          date: changeTask.date,
-          description: changeTask.description,
-          title: changeTask.title
-        });
-
-        store.dispatch('changeTaskStatusAsync', newTasks)
-    }
+      store.dispatch("changeTaskStatusAsync", newTasks);
+    };
 
     // computed
     const currentTask = computed(() => {
-      return tasks.value.find(task => task.id == taskId.value)
-    })
+      return tasks.value.find((task) => task.id == taskId.value);
+    });
 
     const loading = computed(() => {
       return store.state.loading;
-    }) 
+    });
 
     // возвращаем объект, который будет доступен в шаблоне
     return {
@@ -79,13 +81,11 @@ export default {
       changeStatus,
       currentTask,
       loading,
-    }
+    };
   },
-  components: {AppStatus, AppLoader},
-
-}
+  components: { AppStatus, AppLoader },
+};
 </script>
 
 <style scoped>
-
 </style>
